@@ -124,15 +124,24 @@ function prepareDesktop(provider, commonConfig = '', options = {}) {
   fs.chmodSync(wrapper, 0o700);
   return { ...manifest, dir, manifestFile, wrapper, executable: paths.executable, pidFile };
 }
+function desktopEnvironment(spec, parentEnv = process.env) {
+  const env = { ...parentEnv, CODEX_HOME: spec.sharedHome,
+    CODEX_ELECTRON_USER_DATA_PATH: spec.desktopDir, CODEX_CLI_PATH: spec.wrapper };
+  // This switch disables WebSocket transport for every host, including durable
+  // cloud threads. A private CLI wrapper already isolates the local backend.
+  // Let Desktop keep its native remote transport and authenticate it through
+  // that selected backend instead of searching cloud IDs in local rollouts.
+  delete env.CODEX_APP_SERVER_FORCE_CLI;
+  delete env.CODEX_APP_SERVER_WS_URL;
+  delete env.ELECTRON_RUN_AS_NODE;
+  return env;
+}
 async function launchDesktop(provider, commonConfig = '', options = {}) {
   const spec = prepareDesktop(provider, commonConfig, options);
   const logFile = path.join(spec.dir, 'desktop.log');
   const logOffset = fs.existsSync(logFile) ? fs.statSync(logFile).size : 0;
   const fd = fs.openSync(logFile, 'a', 0o600);
-  const env = { ...process.env, CODEX_HOME: spec.sharedHome, CODEX_ELECTRON_USER_DATA_PATH: spec.desktopDir,
-    CODEX_CLI_PATH: spec.wrapper, CODEX_APP_SERVER_FORCE_CLI: '1' };
-  delete env.CODEX_APP_SERVER_WS_URL;
-  delete env.ELECTRON_RUN_AS_NODE;
+  const env = desktopEnvironment(spec);
   let child;
   try {
     child = spawn(spec.executable, [`--user-data-dir=${spec.desktopDir}`], { env, detached: true, stdio: ['ignore', fd, fd] });
@@ -151,4 +160,4 @@ async function launchDesktop(provider, commonConfig = '', options = {}) {
   console.log(`已启动 Codex 桌面版：${provider.name}\n类型：${spec.kind === 'chatgpt' ? 'ChatGPT 订阅' : 'API'}\n进程：${child.pid}\n共享本地数据：${spec.sharedHome}\n实例目录：${spec.dir}`);
   return 0;
 }
-module.exports = { prepareDesktop, launchDesktop, selectOAuth, matchingAuth, processOwnsInstance };
+module.exports = { prepareDesktop, launchDesktop, selectOAuth, matchingAuth, processOwnsInstance, desktopEnvironment };

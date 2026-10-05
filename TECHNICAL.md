@@ -26,7 +26,7 @@ API Desktop profiles use API authentication and a custom provider tag. Subscript
 
 `src/desktop-backend.js` reads the private launch manifest and invokes the installed native CLI. The desktop process uses `CODEX_CLI_PATH` to reach this wrapper; the wrapper pins effective backend configuration and removes inherited authentication variables that could select an unrelated account.
 
-Desktop launch waits up to 30 seconds for backend handshake success and window-visible log markers. A private PID record and the process's data-directory argument prevent duplicate Desktop instances for the same configuration. Application versions can change the internal launch flags or readiness log markers.
+Desktop launch waits up to 30 seconds for backend handshake success and window-visible log markers. A private PID record and the process's data-directory argument prevent duplicate Desktop instances for the same configuration. Desktop keeps native WebSocket routing for durable cloud threads and local-work connections. The launcher removes inherited `CODEX_APP_SERVER_FORCE_CLI` and `CODEX_APP_SERVER_WS_URL`: forcing every host to CLI transport would send cloud conversation IDs to the local backend, producing `no rollout found`. Application versions can change the internal launch flags or readiness log markers.
 
 ## Shared local storage
 
@@ -47,7 +47,7 @@ npm test
 npm pack
 ```
 
-The resulting `codex-ccs-helper-0.2.0.tgz` can be installed with `npm install -g --offline --ignore-scripts ./codex-ccs-helper-0.2.0.tgz`. User databases, profile directories, credentials and histories are not package contents.
+The resulting `codex-ccs-helper-0.2.1.tgz` can be installed with `npm install -g --offline --ignore-scripts ./codex-ccs-helper-0.2.1.tgz`. User databases, profile directories, credentials and histories are not package contents.
 
 ## Verification scope
 

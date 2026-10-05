@@ -57,3 +57,20 @@ test('subscription CLI reuses selected account preparation and excludes inherite
   assert.equal(captured.options.env.OPENAI_API_KEY, undefined);
   assert.equal(captured.options.env.CODEX_ACCESS_TOKEN, undefined);
 });
+
+// Regression: FORCE_CLI redirects durable cloud IDs into local rollout lookup.
+test('Desktop preserves native cloud routing with a private local backend', () => {
+  const { desktopEnvironment } = require('../src/desktop');
+  const parent = { PATH: '/bin', CODEX_APP_SERVER_FORCE_CLI: '1',
+    CODEX_APP_SERVER_WS_URL: 'ws://unrelated-local-backend', ELECTRON_RUN_AS_NODE: '1',
+    CODEX_HOME: '/other-home', CODEX_CLI_PATH: '/other-backend' };
+  const env = desktopEnvironment({ sharedHome: '/shared', desktopDir: '/private/desktop', wrapper: '/private/wrapper' }, parent);
+  assert.equal(env.CODEX_APP_SERVER_FORCE_CLI, undefined);
+  assert.equal(env.CODEX_APP_SERVER_WS_URL, undefined);
+  assert.equal(env.ELECTRON_RUN_AS_NODE, undefined);
+  assert.equal(env.CODEX_HOME, '/shared');
+  assert.equal(env.CODEX_ELECTRON_USER_DATA_PATH, '/private/desktop');
+  assert.equal(env.CODEX_CLI_PATH, '/private/wrapper');
+  assert.equal(env.PATH, '/bin');
+  assert.equal(parent.CODEX_APP_SERVER_FORCE_CLI, '1');
+});

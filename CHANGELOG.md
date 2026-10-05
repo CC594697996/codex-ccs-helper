@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.1 — 2026-10-05
+
+- Preserve native Desktop cloud and local-work routing instead of forcing all hosts to local CLI transport. This fixes durable conversations being looked up as local rollouts while retaining per-account credentials and shared local history.
+
 ## 0.2.0 — 2026-10-05
 
 - Merge CLI and Desktop into one package: `cxs` chooses a launch mode, then a CC Switch configuration; `cxd` is the Desktop shortcut.
