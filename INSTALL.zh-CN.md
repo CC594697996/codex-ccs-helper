@@ -38,10 +38,10 @@ npm ci
 npm pack
 ```
 
-将生成的 `codex-ccs-helper-0.2.1.tgz` 复制到目标机器，安装：
+将生成的 `codex-ccs-helper-0.2.2.tgz` 复制到目标机器，安装：
 
 ```sh
-npm install -g --offline --ignore-scripts ./codex-ccs-helper-0.2.1.tgz
+npm install -g --offline --ignore-scripts ./codex-ccs-helper-0.2.2.tgz
 ```
 
 目标机器同样需要 Node.js、CC Switch，以及相应的 Codex CLI 或桌面应用。安装包包含运行依赖；账号与 API 配置由目标机器上的 CC Switch 提供。

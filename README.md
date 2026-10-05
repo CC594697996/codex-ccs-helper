@@ -99,6 +99,14 @@ Quit CC Switch normally and retry.
 
 Confirm that the Codex desktop app is installed. On launch failure, inspect the instance's `desktop.log` at the path printed in the terminal error.
 
+**A cloud dot cannot create a local task**
+
+The launcher confirms that the App runs, its window appears and its backend initializes. Connection status, task authorization for the current dot, and workspace creation or command execution are reported separately as unverified. Open the relevant dot in the intended Desktop instance and use its native computer connection entry. Before creating a task, have the cloud caller verify that the target connection is online and `is_authorized_for_tasks=true`. When an `environmentId` is supplied explicitly, `attached=false` alone does not block creation.
+
+Instances on the same computer can display the same device name. Helper preserves native naming; identify an instance by its reported PID, profile directory and corresponding registration ID. Cloud access to an existing local conversation depends on the platform interface and account scope. Shared local history does not create a cloud mapping.
+
+See [technical notes](TECHNICAL.md#library-transfer-and-cloud-thread-boundaries) for Library capability discovery, upload timeouts and the verified fallback workflow.
+
 See [installation options](INSTALL.zh-CN.md) for source and offline installation, and [technical notes](TECHNICAL.md) for implementation details.
 
 ## License and acknowledgments

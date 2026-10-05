@@ -99,6 +99,14 @@ Desktop 示例：
 
 确认已安装 Codex 桌面应用。启动失败时，按终端错误信息中的路径查看该实例的 `desktop.log`。
 
+**云端 dot 无法创建本地任务**
+
+终端确认的启动状态包括 App 运行、窗口显示和后端初始化。电脑连接在线状态、当前 dot 的任务授权、工作区创建与命令执行会分别显示为“未核验”。在需要使用的桌面实例中打开对应 dot，使用它的原生电脑连接入口。创建前由云端核对目标连接 ID 在线且 `is_authorized_for_tasks=true`；明确指定 `environmentId` 时，`attached=false` 本身不是独立阻塞。
+
+同一台电脑的多个实例可能显示同一个设备名。Helper 保留原生设备名称；核对实例时使用终端显示的 PID、实例目录和对应登记 ID。旧本地对话是否支持云端读取或发送，由平台接口和账号范围决定，共享本地历史不建立云端映射。
+
+Library 传输的工具发现差异、上传超时及已验证的备用流程见 [技术说明](TECHNICAL.md#library-transfer-and-cloud-thread-boundaries)。
+
 源码安装与离线安装见 [安装说明](INSTALL.zh-CN.md)，实现细节见 [技术说明](TECHNICAL.md)。
 
 ## 许可与致谢

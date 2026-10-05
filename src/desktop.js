@@ -13,6 +13,26 @@ function privateWrite(file, data) {
   fs.writeFileSync(tmp, data, { mode: 0o600, flag: 'wx' });
   fs.renameSync(tmp, file);
 }
+function desktopWrapper(manifest, config) {
+  const quote = value => `'${String(value).replace(/'/g, "'\\''")}'`;
+  const env = { ...manifest.env, CODEX_HOME: manifest.backendHome, CODEX_CLI_PATH: manifest.cli };
+  const exports = Object.entries(env).map(([key, value]) => {
+    if (!/^[A-Z_][A-Z0-9_]*$/.test(key)) throw new Error('桌面实例的环境变量名称无效。');
+    return `export ${key}=${quote(value)}`;
+  });
+  const overrides = [];
+  for (const key of ['model_provider', 'model_providers', 'model', 'cli_auth_credentials_store', 'sqlite_home']) {
+    if (config[key] !== undefined) overrides.push('-c', `${key}=${TOML.stringify.value(config[key])}`);
+  }
+  // exec replaces the shell with the signed native CLI, preserving Desktop's
+  // native process ancestry without a persistent system Node intermediary.
+  return ['#!/bin/sh',
+    'unset OPENAI_API_KEY CODEX_API_KEY CODEX_ACCESS_TOKEN CODEX_AUTH_TOKEN',
+    ...exports, 'for cxs_arg in "$@"; do',
+    '  if [ "$cxs_arg" = app-server ]; then',
+    `    exec ${quote(manifest.cli)} "$@" ${overrides.map(quote).join(' ')}`,
+    '  fi', 'done', `exec ${quote(manifest.cli)} "$@"`, ''].join('\n');
+}
 function jwtSubject(token) {
   try { return JSON.parse(Buffer.from(token.split('.')[1], 'base64url')).sub; } catch { return null; }
 }
@@ -118,9 +138,8 @@ function prepareDesktop(provider, commonConfig = '', options = {}) {
     model: config.model || null, providerTag: tag, sqliteHome: config.sqlite_home };
   const manifestFile = path.join(dir, 'launch.json');
   privateWrite(manifestFile, JSON.stringify(manifest));
-  const quote = s => `'${s.replace(/'/g, "'\\''")}'`;
   const wrapper = path.join(dir, 'codex-wrapper');
-  privateWrite(wrapper, `#!/bin/sh\nexec ${quote(process.execPath)} ${quote(path.join(__dirname, 'desktop-backend.js'))} ${quote(manifestFile)} "$@"\n`);
+  privateWrite(wrapper, desktopWrapper(manifest, config));
   fs.chmodSync(wrapper, 0o700);
   return { ...manifest, dir, manifestFile, wrapper, executable: paths.executable, pidFile };
 }
@@ -149,15 +168,15 @@ async function launchDesktop(provider, commonConfig = '', options = {}) {
   } finally { fs.closeSync(fd); }
   child.unref();
   privateWrite(spec.pidFile, JSON.stringify({ pid: child.pid }));
-  let ready = false;
+  let startupConfirmed = false;
   for (let attempt = 0; attempt < 30; attempt++) {
     await new Promise(resolve => setTimeout(resolve, 1000));
     if (!processOwnsInstance(child.pid, spec.desktopDir)) throw new Error('桌面进程启动后退出；请检查该实例的 desktop.log。');
     const log = fs.readFileSync(logFile).subarray(logOffset).toString('utf8');
-    if (log.includes('initialize_handshake_result') && log.includes('outcome=success') && log.includes('rendererWindowVisible=true')) { ready = true; break; }
+    if (log.includes('initialize_handshake_result') && log.includes('outcome=success') && log.includes('rendererWindowVisible=true')) { startupConfirmed = true; break; }
   }
-  if (!ready) throw new Error(`桌面进程已启动（PID ${child.pid}），但尚未确认窗口和后端就绪。请查看窗口提示及 ${logFile}。`);
-  console.log(`已启动 Codex 桌面版：${provider.name}\n类型：${spec.kind === 'chatgpt' ? 'ChatGPT 订阅' : 'API'}\n进程：${child.pid}\n共享本地数据：${spec.sharedHome}\n实例目录：${spec.dir}`);
+  if (!startupConfirmed) throw new Error(`桌面进程已启动（PID ${child.pid}），但尚未确认窗口和后端初始化。请查看窗口提示及 ${logFile}。`);
+  console.log(`已启动 Codex 桌面版：${provider.name}\n类型：${spec.kind === 'chatgpt' ? 'ChatGPT 订阅' : 'API'}\nApp 进程：${child.pid}\n窗口：已显示\n后端初始化：已确认\n电脑连接在线状态：未核验\n当前 dot 任务授权：未核验\n任务工作区与命令执行：未核验\n共享本地数据：${spec.sharedHome}\n实例目录：${spec.dir}`);
   return 0;
 }
-module.exports = { prepareDesktop, launchDesktop, selectOAuth, matchingAuth, processOwnsInstance, desktopEnvironment };
+module.exports = { prepareDesktop, launchDesktop, selectOAuth, matchingAuth, processOwnsInstance, desktopEnvironment, desktopWrapper };

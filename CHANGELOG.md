@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.2 — 2026-10-05
+
+- Generate a POSIX shell wrapper that directly execs the installed native Codex CLI, preserving private account settings without a persistent system Node intermediary. Keep app-server overrides and auxiliary command arguments separate.
+- Distinguish confirmed Desktop startup from unverified connection status, dot task authorization, workspace creation and execution.
+- Extend the existing wrapper regression test for API and subscription environments, auxiliary commands and authentication-variable removal.
+- Document the successful cloud-created local task and Library transfer, with remaining upload, tool discovery and old local-thread access limits. Preserve native device naming.
+
 ## 0.2.1 — 2026-10-05
 
 - Preserve native Desktop cloud and local-work routing instead of forcing all hosts to local CLI transport. This fixes durable conversations being looked up as local rollouts while retaining per-account credentials and shared local history.
