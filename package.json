@@ -1,0 +1,64 @@
+{
+  "name": "codex-ccs-helper",
+  "version": "0.2.0",
+  "description": "Launch Codex CLI or macOS Desktop with CC Switch API providers and ChatGPT accounts",
+  "bin": {
+    "cxs": "src/cli.js",
+    "cxd": "src/desktop-cli.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "os": [
+    "darwin",
+    "linux",
+    "win32"
+  ],
+  "scripts": {
+    "test": "node --test",
+    "check": "node --check src/cli.js && node --check src/db.js && node --check src/launcher.js && node --check src/unified-launcher.js && node --check src/desktop.js && node --check src/desktop-backend.js && node --check src/desktop-cli.js",
+    "prepare": "npm run check"
+  },
+  "keywords": [
+    "codex",
+    "cc-switch",
+    "cli",
+    "desktop",
+    "launcher"
+  ],
+  "author": "CC594697996",
+  "license": "MIT",
+  "dependencies": {
+    "@iarna/toml": "^2.2.5",
+    "cross-spawn": "^7.0.6",
+    "prompts": "^2.4.2",
+    "sql.js": "^1.11.0"
+  },
+  "private": true,
+  "files": [
+    "src/",
+    "README.md",
+    "README.zh-CN.md",
+    "INSTALL.zh-CN.md",
+    "LICENSE",
+    "UPSTREAM.md",
+    "npm-shrinkwrap.json",
+    "TECHNICAL.md",
+    "docs/images/",
+    "CHANGELOG.md"
+  ],
+  "bundleDependencies": [
+    "@iarna/toml",
+    "cross-spawn",
+    "prompts",
+    "sql.js"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CC594697996/codex-ccs-helper.git"
+  },
+  "homepage": "https://github.com/CC594697996/codex-ccs-helper#readme",
+  "bugs": {
+    "url": "https://github.com/CC594697996/codex-ccs-helper/issues"
+  }
+}
